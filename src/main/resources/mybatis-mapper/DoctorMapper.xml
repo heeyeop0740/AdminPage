@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.mapper.DoctorMapper">
+
+    <select id="getDoctorById" resultType="Doctor">
+        select id, inst_id as instId, user_id as userId, name, pwd from tb_med_stff where user_id = #{userId};
+    </select>
+    
+    <insert id="registerDoctor">
+    	insert into tb_med_stff(inst_id, user_id, name, pwd) values(#{instId}, #{userId}, #{name}, #{pwd});
+    </insert>
+
+</mapper>
