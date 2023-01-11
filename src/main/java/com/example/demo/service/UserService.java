@@ -1,13 +1,9 @@
 package com.example.demo.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.UserInfo;
@@ -19,10 +15,18 @@ public class UserService {
 	UserMapper userMapper;
 	
 	public UserInfo getUserInfo(HttpServletRequest request) {
-	
-		UserInfo userInfo = userMapper.getUserInfo((int)request.getAttribute("id"), (int)request.getAttribute("instId"));
+			
+		UserInfo userInfo = new UserInfo();
+		
+		userInfo.setDfCount(userMapper.getUserInfo((int)request.getAttribute("id"), (int)request.getAttribute("instId"), "DF"));
+		userInfo.setHnCount(userMapper.getUserInfo((int)request.getAttribute("id"), (int)request.getAttribute("instId"), "HN"));
+		userInfo.setHrCount(userMapper.getUserInfo((int)request.getAttribute("id"), (int)request.getAttribute("instId"), "HR"));
+		userInfo.setLnCount(userMapper.getUserInfo((int)request.getAttribute("id"), (int)request.getAttribute("instId"), "LN"));
+		userInfo.setLrCount(userMapper.getUserInfo((int)request.getAttribute("id"), (int)request.getAttribute("instId"), "LR"));
+//		userInfo.setNullCount(userMapper.getUserInfo((int)request.getAttribute("id"), (int)request.getAttribute("instId"), "NOTNULL"));
 		userInfo.setCount(userMapper.getUserNumber((int)request.getAttribute("id"), (int)request.getAttribute("instId")));
-
+		userInfo.setNullCount(userInfo.getCount() - (userInfo.getDfCount() + userInfo.getHnCount() + userInfo.getHrCount() + userInfo.getLnCount() + userInfo.getLrCount()));
+		
 		return userInfo;
 	}
 

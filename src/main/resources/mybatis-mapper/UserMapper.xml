@@ -4,14 +4,13 @@
 
 <mapper namespace="com.example.demo.mapper.UserMapper">
 
-	<select id="getUserInfo" resultType="com.example.demo.model.UserInfo">
-        select tu.training_path,  count(tu.id)
+	<select id="getUserInfo" resultType="int">
+        select count(tu.id)
 		from tb_psct_code tpc , tb_user tu 
-		where tpc.stff_id = #{id} and tpc.inst_id  = #{instId} and tpc.psct_code = tu.psct_code and tpc.uid = tu.uid and tpc.name=tu.name
-		group by tu.training_path ;
+		where tpc.stff_id = #{id} and tpc.inst_id  = #{instId} and tpc.psct_code = tu.psct_code and tpc.uid = tu.uid and tpc.name=tu.name and tu.training_path=#{type};
     </select>
     
-    <select id="getUserNumber">
+    <select id="getUserNumber" resultType="int">
     	select count(tu.id) as total
 		from tb_psct_code tpc , tb_user tu 
 		where tpc.stff_id = #{id} and tpc.inst_id  = #{instId} and tpc.psct_code = tu.psct_code and tpc.uid = tu.uid and tpc.name=tu.name

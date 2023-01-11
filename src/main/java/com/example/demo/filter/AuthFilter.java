@@ -1,8 +1,9 @@
 package com.example.demo.filter;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -10,16 +11,18 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.example.demo.service.LoginService;
 
-import io.jsonwebtoken.ExpiredJwtException;
-
 @Component
+@CrossOrigin
+@Order(2)
 public class AuthFilter implements Filter{
 	
 	@Autowired
@@ -28,21 +31,10 @@ public class AuthFilter implements Filter{
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		//[TODO] validateToken에서 발생한 error를 처리할 수 있는 방법에 대해 고안할 것.
-		
 		
 		HttpServletRequest req = (HttpServletRequest)request;
+		HttpServletResponse res = (HttpServletResponse)response;
 		
-		System.out.println(req.getHeader("authorization"));
-//		Enumeration<String> headerNames = req.getHeaderNames();
-//		
-//		if(headerNames != null) {
-//			while(headerNames.hasMoreElements()) {
-//				System.out.println(headerNames.nextElement());
-//				System.out.println("Header: " + req.getHeader(headerNames.nextElement()));
-//			}
-//		}
-		System.out.println(req.getRequestURI());
 		if(req.getRequestURI().contains("/login") || req.getRequestURI().contains("/register")) {
 			chain.doFilter(request, response);
 			return;
@@ -56,13 +48,32 @@ public class AuthFilter implements Filter{
 		}
 	}
 	
-	@ExceptionHandler(ExpiredJwtException.class)
-	public Map<String, Object> jwtExceptionCatcher(Exception ex) {
+	/**
+	 * request header 내용 콘솔에 print하여 확인하는 함수
+	 * @param req
+	 */
+	private void getRequestInfo(HttpServletRequest req) {
 		
-		Map<String, Object> result = new HashMap<>();
-		result.put("status", "token expired");	
-	
-		return result;
+		Enumeration<String> headerNames = req.getHeaderNames();
+		System.out.println("Request");
+		while(headerNames.hasMoreElements()) {
+			String headerName = headerNames.nextElement();
+			System.out.println(headerName + " : " +req.getHeader(headerName));
+		}
 	}
-
+	
+	/**
+	 * response header 내용 콘솔에 print하여 확인하는 함수
+	 * @param res
+	 */
+	private void getResponseInfo(HttpServletResponse res) {
+		Collection<String> resHeaderNames = res.getHeaderNames();
+		Iterator<String> it = resHeaderNames.iterator();
+		
+		System.out.println("Response");
+		while(it.hasNext()) {
+			String resheaderName = it.next();
+			System.out.println(resheaderName + " : " + res.getHeader(resheaderName));
+		}
+	}
 }

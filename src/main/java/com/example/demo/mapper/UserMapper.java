@@ -1,13 +1,13 @@
 package com.example.demo.mapper;
 
-import org.apache.ibatis.annotations.Mapper;
+import java.util.Map;
 
-import com.example.demo.model.UserInfo;
+import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface UserMapper {
 	
-	public UserInfo getUserInfo(int id, int instId);
+	public int getUserInfo(int id, int instId, String type);
 	
 	public int getUserNumber(int id, int instId);
 }

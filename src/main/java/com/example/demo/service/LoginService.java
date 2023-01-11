@@ -35,11 +35,7 @@ public class LoginService {
 		return doctorMapper.getDoctorById(doctor);
 	}
 	
-	/**
-	 * 
-	 * 
-	 * @return
-	 */
+
 	public int registerDoctor(Doctor doctor) {
 		return doctorMapper.registerDoctor(doctor);
 	}
@@ -53,14 +49,21 @@ public class LoginService {
 	}
 	
 	/**
-	 * 
+	 * 문자열을 바탕으로 인코딩하여 토큰 생성을 위한 Key 생성
+	 * @param keyString
+	 * @return Key
 	 */
 	public Key getKey(String keyString) {
-		//[TODO]
+		
 		byte[] encodedKey = Decoders.BASE64.decode(keyString);
 		return new SecretKeySpec(encodedKey, "HmacSHA256");
 	}
 	
+	/**
+	 * 데이터베이스에서 가져온 admin의 정보의 일부와 만료기간을 토큰내에 첨부하여 생성
+	 * @param admin
+	 * @return token(String)
+	 */
 	public String createToken(Doctor admin) {
 
 		Key key = getKey(keyString);
@@ -71,6 +74,7 @@ public class LoginService {
 		
 		return Jwts.builder()
 				.setSubject("staff")
+				.claim("name", admin.getName())
 				.claim("id", String.valueOf(admin.getId()))
 				.claim("instId", String.valueOf(admin.getInstId()))
 				.setExpiration(new Date(exp))
@@ -78,7 +82,15 @@ public class LoginService {
 				.compact();
 	}
 	
+	/**
+	 * 토큰의 "staff" 권한 확인 및, 토큰 만료 여부 확인, 올바른 토큰 확인
+	 * @param request
+	 * @param key
+	 * @return true or false
+	 * @throws JwtException
+	 */
 	public boolean validateToken(HttpServletRequest request, Key key) throws JwtException{
+		// TODO 토큰의 유효성 검사를 할 필요가 있는지 모르겠음. 만료 토큰에 대한 예외는 자동으로 발생함.
 		
 		String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 		String token ="";
@@ -92,7 +104,6 @@ public class LoginService {
 					.parseClaimsJws(token);
 			
 			if (jws.getBody().getSubject().equals("staff") && (new Date().compareTo(jws.getBody().getExpiration()) <= 0)) {
-				
 				return true;
 			}
 			return false;
@@ -121,7 +132,7 @@ public class LoginService {
 				.build()
 				.parseClaimsJws(token);
 		
-		return (int)jws.getBody().get("id");
+		return Integer.valueOf((String)jws.getBody().get("id"));
 	}
 	
 	/**
@@ -135,6 +146,6 @@ public class LoginService {
 				.build()
 				.parseClaimsJws(token);
 		
-		return (int)jws.getBody().get("instId");
+		return Integer.valueOf((String)jws.getBody().get("instId"));
 	}
 }
