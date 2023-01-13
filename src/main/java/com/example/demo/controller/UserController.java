@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,9 +9,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.model.User;
 import com.example.demo.model.UserInfo;
 import com.example.demo.service.UserService;
 
@@ -48,7 +51,7 @@ public class UserController {
 		return result;
 	}
 	
-	@GetMapping("user/code")
+	@GetMapping("/user/code")
 	public Map<String, Object> getCode(HttpServletRequest request) {
 		
 		Map<String, Object> result = new HashMap<>();
@@ -66,9 +69,21 @@ public class UserController {
 		
 		return result;
 	}
-
 	
-	
-	
-
+	@GetMapping("/user/page/{pageNum}")
+	public Map<String, Object> getUsers(@PathVariable int pageNum, HttpServletRequest request) {
+		// TODO getUsers의 결과의 length == 0일때 fail을 알려줘야한다. 페이지의 수를 어떻게 할지 생각할 필요 있음.
+		Map<String, Object> result = new HashMap<>();
+		List<User> users = userService.getUsers((int)request.getAttribute("id"),(int)request.getAttribute("instId"), Integer.valueOf(pageNum));
+		
+		if(users.size() == 0) {
+			result.put("status", "failed");
+			return result;
+		}
+		
+		result.put("users",  users);
+		result.put("status", "success");
+		
+		return result;
+	}
 }

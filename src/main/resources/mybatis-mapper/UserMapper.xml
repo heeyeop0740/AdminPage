@@ -21,5 +21,20 @@
     	from tb_psct_code
     	where psct_code=#{psctCode};
     </select>
+    
+    <select id="getAllUsers" resultType="User">
+    	select tu.id, tu.uid, tu.name, tu.psct_code as psctCode, tu.terms_agree as termsAgree, tu.status, tu.profile_img as profileImage, tu.training_path as trainingPath, tu.app_guide_yn as appGuideYN
+    	from tb_psct_code tpc , tb_user tu 
+    	where tpc.stff_id = #{id} and tpc.inst_id  = #{instId} and tpc.psct_code = tu.psct_code;
+    </select>
+    
+    <select id="getUsers" resultType="User">
+    	select tu.id, tu.uid, tu.name, tu.psct_code as psctCode, tu.terms_agree as termsAgree, tu.status, tu.profile_img as profileImage, tu.training_path as trainingPath, tu.app_guide_yn as appGuideYN
+    	from tb_psct_code tpc , tb_user tu 
+    	where tpc.stff_id = #{id} and tpc.inst_id  = #{instId} and tpc.psct_code = tu.psct_code
+    	order by tpc.id ASC
+    	limit 4
+    	offset #{startOffset};
+    </select>
 
 </mapper>

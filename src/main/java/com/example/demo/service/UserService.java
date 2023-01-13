@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.util.List;
 import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.PsctCode;
+import com.example.demo.model.User;
 import com.example.demo.model.UserInfo;
 
 @Service
@@ -19,6 +21,7 @@ public class UserService {
 	UserMapper userMapper;
 	
 	public UserInfo getUserInfo(HttpServletRequest request) {
+		// TODO 데이터베이스에 한번만 접근하여 결과를 구할 수 있는 방법을 모색할 필요 있음.
 			
 		UserInfo userInfo = new UserInfo();
 		
@@ -47,7 +50,6 @@ public class UserService {
 	}
 	
 	public boolean isSame(String psctCode) {
-		
 		// userMapper로 psctCode가 DB가 있는지 확인
 		PsctCode code = userMapper.getSameCode(psctCode);
 		System.out.println(code);
@@ -58,5 +60,9 @@ public class UserService {
 		}
 		return true;
 	}
-
+	
+	public List<User> getUsers(int id, int instId, int pageNum) {
+		// TODO userMapper.getUsers에는 시작하는 offset을 넣어준다. 해당 과정에서 하드코딩된 부분(한페이지에 들어가는 사이즈, 10)을 어떻게 해결할지 생각
+		return userMapper.getUsers(id, instId, (pageNum - 1) * 4);
+	}
 }
