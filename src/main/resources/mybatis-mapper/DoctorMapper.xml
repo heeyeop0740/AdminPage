@@ -4,8 +4,12 @@
 
 <mapper namespace="com.example.demo.mapper.DoctorMapper">
 
-    <select id="getDoctorById" resultType="Doctor">
+    <select id="getDoctorByUserId" resultType="Doctor">
         select id, inst_id as instId, user_id as userId, name, pwd from tb_med_stff where user_id = #{userId};
+    </select>
+    
+    <select id="getDoctorById" resultType="Doctor">
+        select id, inst_id as instId, user_id as userId, name, pwd from tb_med_stff where id = #{id};
     </select>
     
     <insert id="registerDoctor">

@@ -1,10 +1,9 @@
 package com.example.demo.service;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.example.demo.mapper.DoctorMapper;
 import com.example.demo.model.Doctor;
@@ -20,22 +20,39 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 
+@CrossOrigin
 @Service
 public class LoginService {
 
 	
-	public static String keyString = "We8zEU/7F++IhZ/PLhJWXLRtHrcPLn79UR1Pe1MUmfo=";
+	private String acessTokenKeyString = "We8zEU/7F++IhZ/PLhJWXLRtHrcPLn79UR1Pe1MUmfo=";
+//	private Key refreshTokenKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+	private String refreshTokenKeyString = "3lcnvha0OkHxSHCXJTilUvd+7c4Jr5KTZX8WnAsvIqs=";
+//	private String refreshTokenKeyString = Base64.getEncoder().encodeToString(refreshTokenKey.getEncoded());
 	
 	@Autowired
 	DoctorMapper doctorMapper;
 	
-	public Doctor getDoctorById(Doctor doctor) {
-		return doctorMapper.getDoctorById(doctor);
+	public String getAcessTokenKeyString() {
+		return acessTokenKeyString;
+	}
+
+	public String getRefreshTokenKeyString() {
+		return refreshTokenKeyString;
+	}
+
+	public Doctor getDoctorByUserId(Doctor doctor) {
+		return doctorMapper.getDoctorByUserId(doctor);
 	}
 	
-
+	public Doctor getDoctorById(int id) {
+		return doctorMapper.getDoctorById(id);
+	}
+	
 	public int registerDoctor(Doctor doctor) {
 		return doctorMapper.registerDoctor(doctor);
 	}
@@ -64,7 +81,7 @@ public class LoginService {
 	 * @param admin
 	 * @return token(String)
 	 */
-	public String createToken(Doctor admin) {
+	public String createAcessToken(Doctor admin, String keyString) {
 
 		Key key = getKey(keyString);
 		
@@ -73,7 +90,25 @@ public class LoginService {
 		long exp = now.getTimeInMillis();
 		
 		return Jwts.builder()
-				.setSubject("staff")
+				.claim("role", "staff")
+				.claim("name", admin.getName())
+				.claim("id", String.valueOf(admin.getId()))
+				.claim("instId", String.valueOf(admin.getInstId()))
+				.setExpiration(new Date(exp))
+				.signWith(key)
+				.compact();
+	}
+	
+	public String createRefreshToken(Doctor admin, String keyString) {
+
+		Key key = getKey(keyString);
+		
+		Calendar now = Calendar.getInstance();
+		now.add(Calendar.HOUR, 336);
+		long exp = now.getTimeInMillis();
+		
+		return Jwts.builder()
+				.claim("role", "staff")
 				.claim("name", admin.getName())
 				.claim("id", String.valueOf(admin.getId()))
 				.claim("instId", String.valueOf(admin.getInstId()))
@@ -103,7 +138,7 @@ public class LoginService {
 					.build()
 					.parseClaimsJws(token);
 			
-			if (jws.getBody().getSubject().equals("staff") && (new Date().compareTo(jws.getBody().getExpiration()) <= 0)) {
+			if (jws.getBody().get("role").equals("staff") && (new Date().compareTo(jws.getBody().getExpiration()) <= 0)) {
 				return true;
 			}
 			return false;
@@ -126,7 +161,7 @@ public class LoginService {
 	 * @param request
 	 * @return stffId
 	 */
-	public int getId(String token) {
+	public int getId(String token, String keyString) {
 		Jws<Claims> jws = Jwts.parserBuilder()
 				.setSigningKey(getKey(keyString))
 				.build()
@@ -140,7 +175,7 @@ public class LoginService {
 	 * @param request
 	 * @return instId
 	 */
-	public int getInstId(String token) {
+	public int getInstId(String token, String keyString) {
 		Jws<Claims> jws = Jwts.parserBuilder()
 				.setSigningKey(getKey(keyString))
 				.build()

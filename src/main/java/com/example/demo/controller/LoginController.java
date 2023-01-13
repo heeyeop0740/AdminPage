@@ -4,6 +4,8 @@ package com.example.demo.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.Doctor;
 import com.example.demo.service.LoginService;
-import com.example.demo.service.UserService;
-
 
 @RestController
 public class LoginController {
@@ -23,12 +23,13 @@ public class LoginController {
 	@Autowired
 	LoginService loginService;
 
-	@ExceptionHandler(NullPointerException.class)
-	public Map<String, Object> loginCatcher() {
-		Map<String, Object> result = new HashMap<>();
-		result.put("status", "failed");
-		return result;
-	}
+//	@ExceptionHandler(NullPointerException.class)
+//	public Map<String, Object> loginCatcher(Exception ex) {
+//		Map<String, Object> result = new HashMap<>();
+//		result.put("message", ex.getMessage());
+//		result.put("status", "failed");
+//		return result;
+//	}
 
 	@PostMapping(value="/login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String, Object> loginJ(@RequestBody Doctor user) throws NullPointerException {
@@ -36,10 +37,11 @@ public class LoginController {
 		
 		Map<String, Object> result = new HashMap<>();
 		
-		Doctor doctor = loginService.getDoctorById(user);
+		Doctor doctor = loginService.getDoctorByUserId(user);
 				
 		if (loginService.validateDoctor(doctor, user)) {
-			result.put("token", loginService.createToken(doctor));
+			result.put("accessToken", loginService.createAcessToken(doctor, loginService.getAcessTokenKeyString()));
+			result.put("refreshToken", loginService.createRefreshToken(doctor, loginService.getRefreshTokenKeyString()));
 			result.put("status", "success");
 			return result;
 		}
@@ -54,10 +56,11 @@ public class LoginController {
 		
 		Map<String, Object> result = new HashMap<>();
 
-		Doctor doctor = loginService.getDoctorById(user);
+		Doctor doctor = loginService.getDoctorByUserId(user);
 
 		if (loginService.validateDoctor(doctor, user)) {
-			result.put("token", loginService.createToken(doctor));
+			result.put("accessToken", loginService.createAcessToken(doctor, loginService.getAcessTokenKeyString()));
+			result.put("refreshToken", loginService.createRefreshToken(doctor, loginService.getRefreshTokenKeyString()));
 			result.put("status", "success");
 			return result;
 		}
@@ -66,8 +69,20 @@ public class LoginController {
 		return result;
 	}
 	
+	@GetMapping("/login/refresh")
+	public Map<String, Object> loginRefreshToken(HttpServletRequest request) {
+		Map<String, Object> result = new HashMap<>();
+		
+		Doctor doctor = loginService.getDoctorById((int)request.getAttribute("id"));
+		
+		result.put("accessToken", loginService.createAcessToken(doctor, loginService.getAcessTokenKeyString()));
+		result.put("status", "success");
+		
+		return result;
+	}
+		
 	@PostMapping("/register")
-	public Map<String, Object> register(Doctor user) {
+	public Map<String, Object> register(@RequestBody Doctor user) {
 		// TODO failed시 error code 변경
 		
 		Map<String, Object> result = new HashMap<>();

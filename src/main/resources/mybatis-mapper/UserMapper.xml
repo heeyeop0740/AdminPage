@@ -15,5 +15,11 @@
 		from tb_psct_code tpc , tb_user tu 
 		where tpc.stff_id = #{id} and tpc.inst_id  = #{instId} and tpc.psct_code = tu.psct_code and tpc.uid = tu.uid and tpc.name=tu.name
     </select>
+    
+    <select id="getSameCode" resultType="com.example.demo.model.PsctCode" >
+    	select id, inst_id as instId, stff_id as stffId, psct_code as psctCode, name, uid, start_date as startDate, end_date as endDate
+    	from tb_psct_code
+    	where psct_code=#{psctCode};
+    </select>
 
 </mapper>
