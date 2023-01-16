@@ -32,6 +32,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter{
 			setErrorResponse(response, "Expired");
 		}catch (JwtException | IllegalArgumentException e) {
 			setErrorResponse(response, "IllegalArgument");
+			System.out.println(e.getMessage());
 		}
 	}
 	

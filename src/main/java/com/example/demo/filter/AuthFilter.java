@@ -36,12 +36,14 @@ public class AuthFilter implements Filter{
 		HttpServletRequest req = (HttpServletRequest)request;
 		HttpServletResponse res = (HttpServletResponse)response;
 		
+		System.out.println(req.getRequestURI());
+		
 		if(CorsUtils.isPreFlightRequest(req)) {
 			chain.doFilter(request, response);
 			return;
 		}
 
-		if(req.getRequestURI().equals("/login") || req.getRequestURI().contains("/register")) {
+		if(req.getRequestURI().equals("/login") || req.getRequestURI().equals("/register") || req.getRequestURI().contains("/swagger") || req.getRequestURI().contains("/v3/api-docs")) {
 			chain.doFilter(request, response);
 			return;
 		}
@@ -60,6 +62,7 @@ public class AuthFilter implements Filter{
 			String token = loginService.getToken(req);
 			request.setAttribute("id", loginService.getId(token, loginService.getAcessTokenKeyString()));
 			request.setAttribute("instId", loginService.getInstId(token, loginService.getAcessTokenKeyString()));
+			System.out.println("authFilter");
 			chain.doFilter(request, response);
 		}
 	}

@@ -4,6 +4,12 @@
 
 <mapper namespace="com.example.demo.mapper.UserMapper">
 
+	<select id="getPsctCodeById" resultType="PsctCode">
+		select id, inst_id as instId, stff_id as stffId, name, uid as uId, start_date as startDate, end_date as endDate, psct_code as psctCode
+		from tb_psct_code
+		where inst_id = #{instId} and stff_id = #{stffId} and id = #{id};
+	</select>
+	
 	<select id="getUserInfo" resultType="int">
         select count(tu.id)
 		from tb_psct_code tpc , tb_user tu 
@@ -33,8 +39,29 @@
     	from tb_psct_code tpc , tb_user tu 
     	where tpc.stff_id = #{id} and tpc.inst_id  = #{instId} and tpc.psct_code = tu.psct_code
     	order by tpc.id ASC
-    	limit 4
+    	limit 10
     	offset #{startOffset};
     </select>
+    
+    <insert id="registerUser" parameterType="PsctCode">
+    	insert into tb_psct_code(inst_id, stff_id, psct_code, name, start_date, end_date) values (#{instId}, #{stffId}, #{psctCode}, #{name}, #{startDate}, #{endDate});
+    </insert>
+    
+    <select id="getUserByCode" resultType="User">
+    	select id, uid, name, psct_code as psctCode, terms_agree as termsAgree, status, profile_img as profileImage, training_path as trainingPath, app_guide_yn as appGuideYN
+    	from tb_user
+    	where psct_code = #{psctCode};
+    </select>
+    
+    <update id="updateUser" parameterType="PsctCode">
+	    update tb_psct_code
+	    set name = #{name}, start_date = #{startDate}, end_date = #{endDate}, psct_code = #{psctCode}, inst_id = #{instId}, stff_id = #{stffId}, mod_date = now()
+	    where id = #{id}
+    </update>
+    
+    <delete id="deletePsctCodeById">
+    	delete from tb_psct_code
+    	where id = #{id};
+    </delete>
 
 </mapper>

@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import java.util.Date;
+
 public class PsctCode {
 
 	@Override
@@ -20,9 +22,9 @@ public class PsctCode {
 	
 	private String uId;
 	
-	private String startDate;
+	private Date startDate;
 	
-	private String endDate;
+	private Date endDate;
 
 	public String getPsctCode() {
 		return psctCode;
@@ -44,7 +46,7 @@ public class PsctCode {
 		return instId;
 	}
 
-	public void setIsntId(int isntId) {
+	public void setInstId(int isntId) {
 		this.instId = isntId;
 	}
 
@@ -72,20 +74,37 @@ public class PsctCode {
 		this.uId = uId;
 	}
 
-	public String getStartDate() {
+	public Date getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(String startDate) {
+	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
 	}
 
-	public String getEndDate() {
+	public Date getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(String endDate) {
+	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
+	}
+	
+	public void updatePsctCode(PsctCode psctCode) {
+		if(psctCode.getPsctCode() != null)
+			this.setPsctCode(psctCode.getPsctCode());
+		if(psctCode.getInstId() != 0) 
+			this.setInstId(psctCode.getId());
+		if(psctCode.getStffId() != 0)
+			this.setStffId(psctCode.getStffId());
+		if(psctCode.getName() != null)
+			this.setName(psctCode.getName());
+		if(psctCode.getuId() != null)
+			this.setuId(psctCode.getuId());
+		if(psctCode.getStartDate() != null)
+			this.setStartDate(psctCode.getStartDate());
+		if(psctCode.getEndDate() != null)
+			this.setEndDate(psctCode.getEndDate());
 	}
 	
 }

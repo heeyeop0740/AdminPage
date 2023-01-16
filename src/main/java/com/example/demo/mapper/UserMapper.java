@@ -19,4 +19,14 @@ public interface UserMapper {
 	public List<User> getAllUsers(int id, int instId, int pageNum);
 	
 	public List<User> getUsers(int id, int instId, int startOffset);
+	
+	public int registerUser(PsctCode psctCode);
+	
+	public User getUserByCode(String psctCode);
+
+	public int updateUser(PsctCode psctCode);
+	
+	public PsctCode getPsctCodeById(int id, int instId, int stffId);
+	
+	public int deletePsctCodeById(int id);
 }

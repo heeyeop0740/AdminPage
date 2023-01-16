@@ -8,13 +8,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.service.ContentsService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
+@Tag(name="컨텐츠", description = "컨텐츠 관리 API")
 public class ContentController {
 	
 	@Autowired
 	ContentsService contentsService;
 	
 	@GetMapping("contents/count")
+	@SecurityRequirement(name = "bearerAuth")
 	public Map<String, Object> getContentsNum() {
 		
 		Map<String, Object> result = contentsService.getContentsInfo();
