@@ -17,17 +17,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.cors.CorsUtils;
 
 import com.example.demo.service.LoginService;
 
 @Component
-@CrossOrigin
 @Order(2)
 public class AuthFilter implements Filter{
 	
 	@Autowired
 	LoginService loginService;
-
+	
+	@CrossOrigin
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
@@ -35,25 +36,38 @@ public class AuthFilter implements Filter{
 		HttpServletRequest req = (HttpServletRequest)request;
 		HttpServletResponse res = (HttpServletResponse)response;
 		
-		if(req.getRequestURI().contains("/login") || req.getRequestURI().contains("/register")) {
+		System.out.println(req.getRequestURI());
+		
+		if(CorsUtils.isPreFlightRequest(req)) {
+			chain.doFilter(request, response);
+			return;
+		}
+
+		if(req.getRequestURI().equals("/login") || req.getRequestURI().equals("/register") || req.getRequestURI().contains("/swagger") || req.getRequestURI().contains("/v3/api-docs")) {
 			chain.doFilter(request, response);
 			return;
 		}
 		
-		if(loginService.validateToken(req, loginService.getKey(LoginService.keyString))) {
+		if(req.getRequestURI().equals("/login/refresh")) {
+			if(loginService.validateToken(req, loginService.getKey(loginService.getRefreshTokenKeyString()))) {
+				String token = loginService.getToken(req);
+				request.setAttribute("id", loginService.getId(token, loginService.getRefreshTokenKeyString()));
+				request.setAttribute("instId", loginService.getInstId(token, loginService.getRefreshTokenKeyString()));
+				chain.doFilter(request, response);
+				return;
+			}
+		}
+		
+		if(loginService.validateToken(req, loginService.getKey(loginService.getAcessTokenKeyString()))) {
 			String token = loginService.getToken(req);
-			request.setAttribute("id", loginService.getId(token));
-			request.setAttribute("instId", loginService.getInstId(token));
+			request.setAttribute("id", loginService.getId(token, loginService.getAcessTokenKeyString()));
+			request.setAttribute("instId", loginService.getInstId(token, loginService.getAcessTokenKeyString()));
+			System.out.println("authFilter");
 			chain.doFilter(request, response);
 		}
 	}
 	
-	/**
-	 * request header 내용 콘솔에 print하여 확인하는 함수
-	 * @param req
-	 */
-	private void getRequestInfo(HttpServletRequest req) {
-		
+	private void printRequestHeader(HttpServletRequest req) {
 		Enumeration<String> headerNames = req.getHeaderNames();
 		System.out.println("Request");
 		while(headerNames.hasMoreElements()) {
@@ -61,16 +75,11 @@ public class AuthFilter implements Filter{
 			System.out.println(headerName + " : " +req.getHeader(headerName));
 		}
 	}
-	
-	/**
-	 * response header 내용 콘솔에 print하여 확인하는 함수
-	 * @param res
-	 */
-	private void getResponseInfo(HttpServletResponse res) {
+
+	private void printResponseHeader(HttpServletResponse res) {
+		System.out.println("Response");
 		Collection<String> resHeaderNames = res.getHeaderNames();
 		Iterator<String> it = resHeaderNames.iterator();
-		
-		System.out.println("Response");
 		while(it.hasNext()) {
 			String resheaderName = it.next();
 			System.out.println(resheaderName + " : " + res.getHeader(resheaderName));
